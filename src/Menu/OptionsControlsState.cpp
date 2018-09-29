@@ -41,7 +41,7 @@ OptionsControlsState::OptionsControlsState(OptionsOrigin origin) : OptionsBaseSt
 
 	// Create objects
 	_lstControls = new TextList(200, 136, 94, 8);
-	
+
 	if (origin != OPT_BATTLESCAPE)
 	{
 		add(_lstControls, "optionLists", "controlsMenu");
@@ -246,19 +246,27 @@ void OptionsControlsState::lstControlsKeyPress(Action *action)
 {
 	if (_selected != -1)
 	{
-		SDL_Keycode key = action->getDetails()->key.keysym.sym;
-		if (key != 0 &&
-			key != SDLK_LSHIFT && key != SDLK_LALT && key != SDLK_LCTRL &&
-			key != SDLK_RSHIFT && key != SDLK_RALT && key != SDLK_RCTRL)
+		if (action->getDetails()->key.keysym.sym == SDLK_BACKSLASH)
 		{
-			*_selKey->asKey() = key;
-			std::wstring name = Language::utf8ToWstr(ucWords(SDL_GetKeyName(*_selKey->asKey())));
-			_lstControls->setCellText(_selected, 1, name);
+			_lstControls->setCellText(_selected, 1, L"");
+			*_selKey->asKey() = SDLK_UNKNOWN;
+			_selected = -1;
+			_selKey = 0;
+		} else {
+			SDL_Keycode key = action->getDetails()->key.keysym.sym;
+			if (key != 0 &&
+				key != SDLK_LSHIFT && key != SDLK_LALT && key != SDLK_LCTRL &&
+				key != SDLK_RSHIFT && key != SDLK_RALT && key != SDLK_RCTRL) {
+				*_selKey->asKey() = key;
+				std::wstring name = Language::utf8ToWstr(
+						ucWords(SDL_GetKeyName(*_selKey->asKey())));
+				_lstControls->setCellText(_selected, 1, name);
+			}
+			_lstControls->setCellColor(_selected, 0, _colorNormal);
+			_lstControls->setCellColor(_selected, 1, _colorNormal);
+			_selected = -1;
+			_selKey = 0;
 		}
-		_lstControls->setCellColor(_selected, 0, _colorNormal);
-		_lstControls->setCellColor(_selected, 1, _colorNormal);
-		_selected = -1;
-		_selKey = 0;
 	}
 }
 
