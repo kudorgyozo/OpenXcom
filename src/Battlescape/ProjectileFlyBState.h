@@ -43,6 +43,8 @@ private:
 	bool createNewProjectile();
 	bool _initialized, _targetFloor;
 public:
+	bool forceFire;
+
 	/// Creates a new ProjectileFly class
 	ProjectileFlyBState(BattlescapeGame *parent, BattleAction action);
 	ProjectileFlyBState(BattlescapeGame *parent, BattleAction action, Position origin, int range);

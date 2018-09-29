@@ -46,7 +46,7 @@ namespace OpenXcom
  * @param targetVoxel Position the projectile is targeting.
  * @param ammo the ammo that produced this projectile, where applicable.
  */
-Projectile::Projectile(Mod *mod, SavedBattleGame *save, BattleAction action, Position origin, Position targetVoxel, BattleItem *ammo) : _mod(mod), _save(save), _action(action), _origin(origin), _targetVoxel(targetVoxel), _position(0), _distance(0.0f), _bulletSprite(-1), _reversed(false), _vaporColor(-1), _vaporDensity(-1), _vaporProbability(5)
+Projectile::Projectile(Mod *mod, SavedBattleGame *save, BattleAction action, Position origin, Position targetVoxel, BattleItem *ammo) : _mod(mod), _save(save), _action(action), _origin(origin), _targetVoxel(targetVoxel), _position(0), _distance(0.0f), _bulletSprite(-1), _reversed(false), _vaporColor(-1), _vaporDensity(-1), _vaporProbability(5), forceFire(0)
 {
 	// this is the number of pixels the sprite will move between frames
 	_speed = Options::battleFireSpeed;
@@ -133,7 +133,7 @@ int Projectile::calculateTrajectory(double accuracy, const Position& originVoxel
 		!_trajectory.empty() &&
 		_action.actor->getFaction() == FACTION_PLAYER &&
 		_action.autoShotCounter == 1 &&
-		((SDL_GetModState() & KMOD_CTRL) == 0 || !Options::forceFire) &&
+		( !Options::forceFire || ((SDL_GetModState() & KMOD_CTRL) == 0 && !forceFire) ) &&
 		_save->getBattleGame()->getPanicHandled() &&
 		_action.type != BA_LAUNCH &&
 		!_action.sprayTargeting)
@@ -227,12 +227,12 @@ int Projectile::calculateThrow(double accuracy)
 	{
 		targets.push_back(targetVoxel);
 	}
-	else 
+	else
 	{
 		BattleUnit *tu = targetTile->getUnit();
 		if (!tu && _action.target.z > 0 && targetTile->hasNoFloor(0))
 			tu = _save->getTile(_action.target - Position(0, 0, 1))->getUnit();
-		if (Options::forceFire && (SDL_GetModState() & KMOD_CTRL) != 0 && _save->getSide() == FACTION_PLAYER)
+		if (Options::forceFire && ((SDL_GetModState() & KMOD_CTRL) != 0 || forceFire) && _save->getSide() == FACTION_PLAYER)
 		{
 			targets.push_back(_action.target * Position(16,16,24) + Position(0, 0, 12));
 			forced = true;
@@ -315,7 +315,7 @@ int Projectile::calculateThrow(double accuracy)
 			&& endTile->getMapData(O_OBJECT)->getTUCost(MT_WALK) == 255
 			&& !(endTile->isBigWall() && (endTile->getMapData(O_OBJECT)->getBigWall()<1 || endTile->getMapData(O_OBJECT)->getBigWall()>3)))
 		{
-			test = V_OUTOFBOUNDS; 
+			test = V_OUTOFBOUNDS;
 		}
 	}
 	return test;

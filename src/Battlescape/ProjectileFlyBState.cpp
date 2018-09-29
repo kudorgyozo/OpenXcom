@@ -45,11 +45,11 @@ namespace OpenXcom
 /**
  * Sets up an ProjectileFlyBState.
  */
-ProjectileFlyBState::ProjectileFlyBState(BattlescapeGame *parent, BattleAction action, Position origin, int range) : BattleState(parent, action), _unit(0), _ammo(0), _origin(origin), _originVoxel(-1,-1,-1), _projectileImpact(0), _range(range), _initialized(false), _targetFloor(false)
+ProjectileFlyBState::ProjectileFlyBState(BattlescapeGame *parent, BattleAction action, Position origin, int range) : BattleState(parent, action), _unit(0), _ammo(0), _origin(origin), _originVoxel(-1,-1,-1), _projectileImpact(0), _range(range), _initialized(false), _targetFloor(false), forceFire(0)
 {
 }
 
-ProjectileFlyBState::ProjectileFlyBState(BattlescapeGame *parent, BattleAction action) : BattleState(parent, action), _unit(0), _ammo(0), _origin(action.actor->getPosition()), _originVoxel(-1,-1,-1), _projectileImpact(0), _range(0), _initialized(false), _targetFloor(false)
+ProjectileFlyBState::ProjectileFlyBState(BattlescapeGame *parent, BattleAction action) : BattleState(parent, action), _unit(0), _ammo(0), _origin(action.actor->getPosition()), _originVoxel(-1,-1,-1), _projectileImpact(0), _range(0), _initialized(false), _targetFloor(false), forceFire(0)
 {
 }
 
@@ -219,7 +219,7 @@ void ProjectileFlyBState::init()
 					closeQuartersTargetList.push_back(closeQuartersTarget);
 				}
 			}
-		}	
+		}
 
 		if (!closeQuartersTargetList.empty())
 		{
@@ -285,7 +285,7 @@ void ProjectileFlyBState::init()
 	}
 
 	bool forceEnableObstacles = false;
-	if (_action.type == BA_LAUNCH || (Options::forceFire && (SDL_GetModState() & KMOD_CTRL) != 0 && isPlayer) || !_parent->getPanicHandled())
+	if (_action.type == BA_LAUNCH || (Options::forceFire && ((SDL_GetModState() & KMOD_CTRL) != 0 || forceFire) && isPlayer) || !_parent->getPanicHandled())
 	{
 		// target nothing, targets the middle of the tile
 		_targetVoxel = _action.target.toVexel() + Position(8, 8, 12);
@@ -421,6 +421,7 @@ bool ProjectileFlyBState::createNewProjectile()
 
 	// create a new projectile
 	Projectile *projectile = new Projectile(_parent->getMod(), _parent->getSave(), _action, _origin, _targetVoxel, _ammo);
+	projectile->forceFire = forceFire;
 	// hit log - new bullet
 	_parent->getSave()->hitLog << _parent->getSave()->getBattleState()->tr("STR_HIT_LOG_NEW_BULLET");
 

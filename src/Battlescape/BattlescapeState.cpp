@@ -1005,22 +1005,10 @@ void BattlescapeState::mapLongPress()
 	{
 		return;
 	}
-	// Do nothing if this method of turning is disabled.
-	if (!Options::holdToTurn)
-	{
-		return;
-	}
-	// Proceed with turning the unit.
+
 	Position pos;
-	BattleUnit *selectedUnit = _save->getSelectedUnit();
 	_map->getSelectorPosition(&pos);
-	if (selectedUnit)
-	{
-		if (pos != selectedUnit->getPosition())
-		{
-			_battleGame->secondaryAction(pos);
-		}
-	}
+	_battleGame->longPressAction(pos);
 }
 #endif
 

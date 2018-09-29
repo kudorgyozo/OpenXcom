@@ -188,8 +188,12 @@ public:
 	BattleAction *getCurrentAction();
 	/// Determines whether there is an action currently going on.
 	bool isBusy() const;
+#ifdef __MOBILE__
 	/// Activates primary action (left click).
-	void primaryAction(Position pos);
+	void longPressAction(Position pos);
+#endif
+	/// Activates primary action (left click).
+	void primaryAction(Position pos, bool forceFire = false);
 	/// Activates secondary action (right click).
 	void secondaryAction(Position pos);
 	/// Handler for the blaster launcher button.

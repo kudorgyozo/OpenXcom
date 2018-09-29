@@ -50,6 +50,8 @@ private:
 	int _vaporColor, _vaporDensity, _vaporProbability;
 	void applyAccuracy(Position origin, Position *target, double accuracy, bool keepRange, bool extendLine);
 public:
+	bool forceFire;
+
 	/// Creates a new Projectile.
 	Projectile(Mod *mod, SavedBattleGame *save, BattleAction action, Position origin, Position target, BattleItem *ammo);
 	/// Cleans up the Projectile.

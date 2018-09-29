@@ -1568,11 +1568,41 @@ bool BattlescapeGame::isBusy() const
 	return !_states.empty();
 }
 
+#ifdef __MOBILE__
+void BattlescapeGame::longPressAction(Position pos) {
+	if (_currentAction.targeting && (_currentAction.type == BA_AUTOSHOT ||
+		_currentAction.type == BA_SNAPSHOT || _currentAction.type == BA_AIMEDSHOT))
+	{
+		primaryAction(pos, true);
+	}
+	else
+	{
+		// Do nothing if this method of turning is disabled.
+		if (!Options::holdToTurn)
+		{
+			return;
+		}
+
+		// Proceed with turning the unit.
+		BattleUnit *selectedUnit = _save->getSelectedUnit();
+		if (selectedUnit)
+		{
+			if (pos != selectedUnit->getPosition())
+			{
+				secondaryAction(pos);
+			}
+		}
+
+	}
+
+}
+#endif
+
 /**
  * Activates primary action (left click).
  * @param pos Position on the map.
  */
-void BattlescapeGame::primaryAction(Position pos)
+void BattlescapeGame::primaryAction(Position pos, bool forceFire)
 {
 	bool bPreviewed = Options::battleNewPreviewPath != PATH_NONE;
 
@@ -1632,7 +1662,9 @@ void BattlescapeGame::primaryAction(Position pos)
 				getMap()->getWaypoints()->clear();
 				_parentState->getGame()->getCursor()->setVisible(false);
 				_currentAction.cameraPosition = getMap()->getCamera()->getMapOffset();
-				_states.push_back(new ProjectileFlyBState(this, _currentAction));
+				ProjectileFlyBState *theProjectile = new ProjectileFlyBState(this, _currentAction);
+				theProjectile->forceFire = forceFire;
+				_states.push_back(theProjectile);
 				statePushFront(new UnitTurnBState(this, _currentAction));
 				_currentAction.sprayTargeting = false;
 				_currentAction.waypoints.clear();
@@ -1719,7 +1751,9 @@ void BattlescapeGame::primaryAction(Position pos)
 
 			_parentState->getGame()->getCursor()->setVisible(false);
 			_currentAction.cameraPosition = getMap()->getCamera()->getMapOffset();
-			_states.push_back(new ProjectileFlyBState(this, _currentAction));
+			ProjectileFlyBState *theProjectile = new ProjectileFlyBState(this, _currentAction);
+			theProjectile->forceFire = forceFire;
+			_states.push_back(theProjectile);
 			statePushFront(new UnitTurnBState(this, _currentAction)); // first of all turn towards the target
 		}
 	}
